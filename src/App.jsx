@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Fuse from 'fuse.js'
-import { ArrowLeft, Clock3, Disc3, Download, ListMusic, Music2, Search, Share2, Wifi, WifiOff, X } from 'lucide-react'
+import { ArrowLeft, Camera, Clock3, Disc3, Download, ListMusic, Music2, Pause, Play, Search, Share2, Video, Wifi, WifiOff, X } from 'lucide-react'
 import './App.css'
 
 const canonicalAlbums = [
@@ -186,12 +186,188 @@ function InstallButton({ isInstalled, installPrompt, onInstall }) {
   )
 }
 
+function PerformanceRecorder({ song, onClose }) {
+  const videoRef = useRef(null)
+  const lyricsRef = useRef(null)
+  const streamRef = useRef(null)
+  const recorderRef = useRef(null)
+  const chunksRef = useRef([])
+  const downloadUrlRef = useRef('')
+  const [cameraReady, setCameraReady] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [autoScroll, setAutoScroll] = useState(false)
+  const [scrollSpeed, setScrollSpeed] = useState(3)
+  const [recordingTime, setRecordingTime] = useState(0)
+  const [downloadUrl, setDownloadUrl] = useState('')
+  const [recordingType, setRecordingType] = useState('')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!cameraReady || !videoRef.current || !streamRef.current) return
+    videoRef.current.srcObject = streamRef.current
+    videoRef.current.play().catch(() => {})
+  }, [cameraReady])
+
+  useEffect(() => {
+    if (!autoScroll) return undefined
+    const timer = window.setInterval(() => {
+      if (!lyricsRef.current) return
+      lyricsRef.current.scrollTop += scrollSpeed * 0.18
+      if (lyricsRef.current.scrollTop + lyricsRef.current.clientHeight >= lyricsRef.current.scrollHeight - 1) {
+        setAutoScroll(false)
+      }
+    }, 40)
+    return () => window.clearInterval(timer)
+  }, [autoScroll, scrollSpeed])
+
+  useEffect(() => {
+    if (!isRecording) return undefined
+    const timer = window.setInterval(() => setRecordingTime((time) => time + 1), 1000)
+    return () => window.clearInterval(timer)
+  }, [isRecording])
+
+  useEffect(() => () => {
+    if (recorderRef.current?.state !== 'inactive') recorderRef.current?.stop()
+    streamRef.current?.getTracks().forEach((track) => track.stop())
+    if (downloadUrlRef.current) URL.revokeObjectURL(downloadUrlRef.current)
+  }, [])
+
+  const startCamera = async () => {
+    setError('')
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+      setError('Camera recording is not supported in this browser. Try the latest Safari or Chrome over HTTPS.')
+      return
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' },
+        audio: true,
+      })
+      streamRef.current = stream
+      setCameraReady(true)
+    } catch (cameraError) {
+      setError(cameraError.name === 'NotAllowedError'
+        ? 'Allow camera and microphone access in your browser settings, then try again.'
+        : 'Could not start the camera. Close other camera apps and try again.')
+    }
+  }
+
+  const startRecording = () => {
+    if (!streamRef.current) return
+    setError('')
+    setRecordingTime(0)
+    chunksRef.current = []
+    if (downloadUrlRef.current) URL.revokeObjectURL(downloadUrlRef.current)
+    downloadUrlRef.current = ''
+    setDownloadUrl('')
+    const supportedTypes = ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp8,opus', 'video/webm']
+    const mimeType = supportedTypes.find((type) => MediaRecorder.isTypeSupported(type))
+    try {
+      const recorder = new MediaRecorder(streamRef.current, mimeType ? { mimeType } : undefined)
+      recorderRef.current = recorder
+      recorder.ondataavailable = (event) => {
+        if (event.data.size) chunksRef.current.push(event.data)
+      }
+      recorder.onstop = () => {
+        const type = recorder.mimeType || mimeType || 'video/webm'
+        const clip = new Blob(chunksRef.current, { type })
+        const url = URL.createObjectURL(clip)
+        downloadUrlRef.current = url
+        setDownloadUrl(url)
+        setRecordingType(type.includes('mp4') ? 'mp4' : 'webm')
+        setIsRecording(false)
+      }
+      recorder.start(1000)
+      setIsRecording(true)
+    } catch {
+      setError('Recording could not start on this browser. Try a current version of Safari or Chrome.')
+    }
+  }
+
+  const stopRecording = () => {
+    if (recorderRef.current?.state === 'recording') recorderRef.current.stop()
+  }
+
+  const formatRecordingTime = (time) => `${String(Math.floor(time / 60)).padStart(2, '0')}:${String(time % 60).padStart(2, '0')}`
+
+  return (
+    <main className="performance-mode">
+      <header className="performance-header">
+        <button className="icon-button" type="button" onClick={onClose} disabled={isRecording} aria-label="Back to lyrics"><ArrowLeft size={20} /></button>
+        <div className="performance-brand"><Video size={16} /><span>PERFORMANCE MODE</span></div>
+        {isRecording && <span className="recording-timer"><i />{formatRecordingTime(recordingTime)}</span>}
+      </header>
+
+      <section className="performance-content">
+        <div className="performance-title">
+          <p>CAMERA + TELEPROMPTER</p>
+          <h1>{song.title}</h1>
+          <span>{getCanonicalAlbum(song.album, song.title)}</span>
+        </div>
+
+        <div className="performance-layout">
+          <section className="camera-panel">
+            <div className={`camera-preview ${cameraReady ? 'ready' : ''}`}>
+              {cameraReady ? (
+                <video ref={videoRef} autoPlay muted playsInline />
+              ) : (
+                <div className="camera-placeholder">
+                  <Camera size={30} />
+                  <span>Your front camera preview will appear here</span>
+                </div>
+              )}
+              {isRecording && <span className="recording-indicator"><i /> REC {formatRecordingTime(recordingTime)}</span>}
+            </div>
+            <div className="record-controls">
+              {!cameraReady ? (
+                <button className="record-button" type="button" onClick={startCamera}><Camera size={17} />ENABLE CAMERA</button>
+              ) : isRecording ? (
+                <button className="record-button stop" type="button" onClick={stopRecording}><span className="stop-square" />STOP RECORDING</button>
+              ) : (
+                <button className="record-button" type="button" onClick={startRecording}><span className="record-dot" />{downloadUrl ? 'RECORD AGAIN' : 'START RECORDING'}</button>
+              )}
+              {downloadUrl && (
+                <a className="download-recording" href={downloadUrl} download={`mcr-${song.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.${recordingType}`}>
+                  <Download size={15} />SAVE VIDEO
+                </a>
+              )}
+            </div>
+            {error && <p className="camera-error" role="alert">{error}</p>}
+            <p className="recording-note">Lyrics stay visible as your prompt. Your saved clip contains camera and microphone audio.</p>
+          </section>
+
+          <section className="prompter-panel">
+            <div className="prompter-toolbar">
+              <span>LYRICS</span>
+              <button type="button" onClick={() => setAutoScroll((active) => !active)} aria-pressed={autoScroll}>
+                {autoScroll ? <Pause size={15} /> : <Play size={15} />}
+                {autoScroll ? 'PAUSE SCROLL' : 'AUTO-SCROLL'}
+              </button>
+            </div>
+            <label className="scroll-speed">
+              <span>SCROLL SPEED</span>
+              <input type="range" min="1" max="8" value={scrollSpeed} onChange={(event) => setScrollSpeed(Number(event.target.value))} />
+            </label>
+            <div className="prompter-lyrics" ref={lyricsRef}>
+              {(song.lyrics || 'Lyrics unavailable').split('\n').map((line, index) =>
+                line.trim() ? <p key={index}>{line}</p> : <br key={index} />,
+              )}
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  )
+}
+
 function App() {
   const [songs, setSongs] = useState([])
   const [query, setQuery] = useState('')
   const [viewMode, setViewMode] = useState('albums')
   const [selectedAlbum, setSelectedAlbum] = useState(null)
   const [selectedSong, setSelectedSong] = useState(null)
+  const [performanceMode, setPerformanceMode] = useState(false)
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [loadError, setLoadError] = useState('')
   const [installPrompt, setInstallPrompt] = useState(null)
@@ -317,6 +493,9 @@ function App() {
   }, [songs])
 
   if (selectedSong) {
+    if (performanceMode) {
+      return <PerformanceRecorder song={selectedSong} onClose={() => setPerformanceMode(false)} />
+    }
     return (
       <main className="reader">
         <header className="reader-header">
@@ -335,6 +514,9 @@ function App() {
           {formatDuration(selectedSong.duration) && (
             <div className="reader-duration"><Clock3 size={15} />{formatDuration(selectedSong.duration)}</div>
           )}
+          <button className="performance-launch" type="button" onClick={() => setPerformanceMode(true)}>
+            <Video size={17} /> RECORD WITH LYRICS
+          </button>
           <div className="lyrics">
             {(selectedSong.lyrics || 'Lyrics unavailable').split('\n').map((line, index) =>
               line.trim() ? <p key={index}>{line}</p> : <br key={index} />,

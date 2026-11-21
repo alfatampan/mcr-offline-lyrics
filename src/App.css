@@ -186,6 +186,44 @@ button { cursor: pointer; }
 .reader-duration { display: flex; align-items: center; gap: 7px; color: #71717a; font-size: 12px; }
 .lyrics { margin-top: 48px; color: #d4d4d8; font-family: Georgia, serif; font-size: clamp(18px, 2.4vw, 23px); line-height: 1.8; }
 .lyrics p { margin: 0; }
+.performance-launch { display: inline-flex; align-items: center; gap: 9px; margin-top: 24px; border: 1px solid #ef3340; border-radius: 999px; background: #ef3340; color: #fff; padding: 11px 16px; font-family: "MCR Oswald", sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .1em; }
+.performance-launch:hover { background: #dc2431; }
+
+.performance-mode { height: 100vh; height: 100dvh; overflow: hidden; background: radial-gradient(ellipse at 75% 0%, #211314 0, #09090b 48%); }
+.performance-header { height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #27272a; padding: 0 max(20px, calc((100vw - 1200px) / 2)); }
+.performance-header .icon-button:disabled { opacity: .4; cursor: not-allowed; }
+.performance-brand { display: flex; align-items: center; gap: 8px; color: #ef3340; font-family: "MCR Oswald", sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .16em; }
+.recording-timer { display: inline-flex; align-items: center; gap: 7px; color: #fafafa; font-size: 12px; font-variant-numeric: tabular-nums; }
+.recording-timer i, .recording-indicator i, .record-dot { width: 9px; height: 9px; display: inline-block; border-radius: 50%; background: #ef3340; box-shadow: 0 0 12px rgba(239,51,64,.55); }
+.performance-content { width: min(1200px, 100%); height: calc(100% - 62px); display: flex; flex-direction: column; margin: 0 auto; padding: 18px 24px 22px; }
+.performance-title { flex: 0 0 auto; margin-bottom: 14px; }
+.performance-title p { margin: 0 0 3px; color: #ef3340; font-size: 9px; font-weight: 700; letter-spacing: .2em; }
+.performance-title h1 { margin: 0; color: #f4f4f5; font-family: "MCR Cormorant", Georgia, serif; font-size: 34px; font-weight: 600; line-height: 1.05; }
+.performance-title > span { display: block; margin-top: 3px; color: #71717a; font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.performance-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: 18px; }
+.camera-panel, .prompter-panel { min-width: 0; min-height: 0; overflow: hidden; border: 1px solid #30272a; border-radius: 12px; background: rgba(17,17,20,.94); }
+.camera-panel { display: flex; flex-direction: column; padding: 12px; }
+.camera-preview { position: relative; flex: 1 1 auto; min-height: 100px; overflow: hidden; display: grid; place-items: center; border-radius: 8px; background: radial-gradient(circle at center, #27272a, #111114 62%, #09090b); }
+.camera-preview video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.camera-placeholder { display: flex; flex-direction: column; align-items: center; gap: 12px; color: #71717a; font-size: 12px; text-align: center; padding: 20px; }
+.recording-indicator { position: absolute; top: 12px; left: 12px; display: flex; align-items: center; gap: 6px; border-radius: 99px; background: rgba(0,0,0,.7); color: white; padding: 6px 9px; font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.recording-indicator i { width: 7px; height: 7px; }
+.record-controls { min-height: 48px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; padding-top: 10px; }
+.record-button, .download-recording { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #ef3340; border-radius: 999px; background: #ef3340; color: white; padding: 0 14px; font-family: "MCR Oswald", sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-decoration: none; }
+.record-button:hover, .download-recording:hover { background: #dc2431; }
+.record-button.stop { background: #27272a; border-color: #52525b; }
+.stop-square { width: 10px; height: 10px; border-radius: 2px; background: #ef3340; }
+.download-recording { border-color: #3f3f46; background: #18181b; color: #e4e4e7; }
+.camera-error { margin: 5px 0 0; color: #fb7185; font-size: 11px; text-align: center; }
+.recording-note { margin: 8px 0 0; color: #71717a; font-size: 10px; line-height: 1.4; text-align: center; }
+.prompter-panel { display: flex; flex-direction: column; padding: 14px 16px 8px; }
+.prompter-toolbar { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #27272a; color: #ef3340; font-family: "MCR Oswald", sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .16em; }
+.prompter-toolbar button { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #3f3f46; border-radius: 999px; background: #18181b; color: #e4e4e7; padding: 7px 10px; font-family: "MCR Oswald", sans-serif; font-size: 9px; font-weight: 600; letter-spacing: .08em; }
+.prompter-toolbar button[aria-pressed="true"] { border-color: #ef3340; color: #ff6872; }
+.scroll-speed { display: flex; flex: 0 0 auto; align-items: center; gap: 12px; padding: 10px 0; color: #71717a; font-size: 8px; font-weight: 700; letter-spacing: .12em; }
+.scroll-speed input { flex: 1; accent-color: #ef3340; }
+.prompter-lyrics { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: auto; padding: 6px 5px 80px 0; color: #f4f4f5; font-family: "MCR Cormorant", Georgia, serif; font-size: clamp(20px, 2vw, 28px); font-weight: 600; line-height: 1.45; }
+.prompter-lyrics p { margin: 0; }
 
 .mobile-nav { display: none; }
 
@@ -235,4 +273,18 @@ button { cursor: pointer; }
   .lyrics-reader { padding: 44px 20px 80px; }
   .lyrics { margin-top: 36px; line-height: 1.7; }
   .result-row span { max-width: 55vw; }
+  .performance-header { height: 56px; padding: 0 14px; }
+  .performance-header .icon-button { width: 34px; height: 34px; }
+  .performance-brand { font-size: 8px; letter-spacing: .1em; }
+  .performance-content { height: calc(100% - 56px); padding: 12px 12px 14px; }
+  .performance-title { margin-bottom: 10px; }
+  .performance-title h1 { font-size: 27px; }
+  .performance-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, .85fr) minmax(0, 1.15fr); gap: 10px; }
+  .camera-panel { padding: 8px; }
+  .camera-preview { min-height: 60px; }
+  .record-controls { min-height: 42px; padding-top: 7px; }
+  .record-button, .download-recording { min-height: 32px; font-size: 9px; }
+  .recording-note { margin-top: 5px; font-size: 9px; }
+  .prompter-panel { padding: 10px 12px 6px; }
+  .prompter-lyrics { font-size: 22px; line-height: 1.35; }
 }

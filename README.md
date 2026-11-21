@@ -11,6 +11,7 @@ A full-offline My Chemical Romance lyrics and discography PWA, styled with a **L
 - Instant fuzzy search across song titles, lyrics, and albums
 - Album covers and dedicated album track pages
 - Lyrics reader with Screen Wake Lock support
+- Performance mode with front-camera recording and an adjustable scrolling lyrics teleprompter
 - Installable PWA for Android, iPhone, iPad, Windows, and macOS
 
 ## Screenshots
@@ -58,6 +59,16 @@ The app can also show its iOS installation instructions when you tap **ADD TO HO
 1. Open the app in Chrome or Edge.
 2. Click the red **INSTALL APP** button in the header.
 3. Alternatively, open the browser menu and choose **Install MCR Offline Lyrics**.
+
+## Record while reading lyrics
+
+1. Open a song's lyrics and tap **RECORD WITH LYRICS**.
+2. Tap **ENABLE CAMERA** and allow camera and microphone access.
+3. Adjust the lyrics scroll speed or tap **AUTO-SCROLL**.
+4. Tap **START RECORDING**; the camera preview and lyrics stay together on screen.
+5. Tap **STOP RECORDING**, then **SAVE VIDEO**.
+
+The downloaded clip contains the camera and microphone recording; the on-screen lyrics are a teleprompter and are not burned into that clip. To capture the lyrics on screen in your final video, use your phone's built-in screen recorder while Performance mode is open, or edit the saved camera clip with your preferred video editor. Camera recording requires a supported browser and permission; use the **ENABLE CAMERA** button on the live HTTPS site.
 
 ## Run locally
 

@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/mcr-offline-lyrics/sw.js', { scope: '/mcr-offline-lyrics/' })})}

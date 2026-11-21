@@ -11,7 +11,6 @@ A full-offline My Chemical Romance lyrics and discography PWA, styled with a **L
 - Instant fuzzy search across song titles, lyrics, and albums
 - Album covers and dedicated album track pages
 - Lyrics reader with Screen Wake Lock support
-- Mobile-first Jakarta concert poster interface
 - Installable PWA for Android, iPhone, iPad, Windows, and macOS
 
 ## Screenshots

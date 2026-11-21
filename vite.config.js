@@ -12,20 +12,20 @@ export default defineConfig({
       manifest: {
         name: 'MCR Offline Lyrics',
         short_name: 'MCR Lyrics',
-        start_url: '/mcr-offline-lyrics/',
-        scope: '/mcr-offline-lyrics/',
+        start_url: './',
+        scope: './',
         theme_color: '#09090b',
         background_color: '#09090b',
         display: 'standalone',
         icons: [
           {
-            src: '/mcr-offline-lyrics/icons/mcr-192.png',
+            src: 'icons/mcr-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/mcr-offline-lyrics/icons/mcr-512.png',
+            src: 'icons/mcr-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',

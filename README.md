@@ -86,6 +86,12 @@ The build output is written to `dist/`.
 - Fuse.js
 - Lucide React
 
+## Credits and content
+
+Lyrics data is credited to [LRCLIB](https://lrclib.net/), a free and open lyrics database, and its contributors. Thank you for making lyrics data available.
+
+The MIT license in this repository covers the app's original source code only. Lyrics and album artwork are third-party content and are **not** relicensed under MIT; their respective copyrights and terms remain with their owners. Attribution is not a grant of rights.
+
 ## License
 
-Licensed under the [MIT License](LICENSE).
+App source code is licensed under the [MIT License](LICENSE).

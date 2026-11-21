@@ -491,6 +491,12 @@ function App() {
         </section>
       )}
 
+      <footer className="credits">
+        <span>LYRICS DATA</span>
+        <a href="https://lrclib.net/" target="_blank" rel="noreferrer">LRCLIB</a>
+        <p>Thanks to LRCLIB and its contributors for making lyrics data available.</p>
+      </footer>
+
       <nav className="mobile-nav" aria-label="Primary navigation">
         <button type="button" className={!query && viewMode === 'albums' ? 'active' : ''} onClick={() => { setQuery(''); setViewMode('albums') }}><Disc3 size={20} /><span>Albums</span></button>
         <button type="button" className={query ? 'active' : ''} onClick={() => { setViewMode('search'); document.querySelector('.search-wrap input')?.focus() }}><Search size={20} /><span>Search</span></button>

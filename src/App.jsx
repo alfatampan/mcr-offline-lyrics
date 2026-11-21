@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Fuse from 'fuse.js'
-import { ArrowLeft, Camera, Clock3, Disc3, Download, ListMusic, Music2, Pause, Play, Search, Share2, Video, Wifi, WifiOff, X } from 'lucide-react'
+import { ArrowLeft, Camera, Clock3, Disc3, Download, ListMusic, Music2, Pause, Play, RotateCw, Search, Share2, Video, Wifi, WifiOff, X } from 'lucide-react'
 import './App.css'
 
 const canonicalAlbums = [
@@ -201,6 +201,15 @@ function PerformanceRecorder({ song, onClose }) {
   const [downloadUrl, setDownloadUrl] = useState('')
   const [recordingType, setRecordingType] = useState('')
   const [error, setError] = useState('')
+  const [orientationMessage, setOrientationMessage] = useState('')
+  const [isLandscape, setIsLandscape] = useState(() => window.matchMedia('(orientation: landscape)').matches)
+
+  useEffect(() => {
+    const orientationQuery = window.matchMedia('(orientation: landscape)')
+    const updateOrientation = () => setIsLandscape(orientationQuery.matches)
+    orientationQuery.addEventListener('change', updateOrientation)
+    return () => orientationQuery.removeEventListener('change', updateOrientation)
+  }, [])
 
   useEffect(() => {
     if (!cameraReady || !videoRef.current || !streamRef.current) return
@@ -289,6 +298,20 @@ function PerformanceRecorder({ song, onClose }) {
     if (recorderRef.current?.state === 'recording') recorderRef.current.stop()
   }
 
+  const requestLandscape = async () => {
+    setOrientationMessage('')
+    if (window.screen.orientation?.lock) {
+      try {
+        await window.screen.orientation.lock('landscape')
+        return
+      } catch {
+        setOrientationMessage('Rotate your phone sideways to use the landscape layout.')
+        return
+      }
+    }
+    setOrientationMessage('Rotate your phone sideways to use the landscape layout.')
+  }
+
   const formatRecordingTime = (time) => `${String(Math.floor(time / 60)).padStart(2, '0')}:${String(time % 60).padStart(2, '0')}`
 
   return (
@@ -296,10 +319,14 @@ function PerformanceRecorder({ song, onClose }) {
       <header className="performance-header">
         <button className="icon-button" type="button" onClick={onClose} disabled={isRecording} aria-label="Back to lyrics"><ArrowLeft size={20} /></button>
         <div className="performance-brand"><Video size={16} /><span>PERFORMANCE MODE</span></div>
+        <button className="orientation-button" type="button" onClick={requestLandscape} aria-label="Rotate to landscape">
+          <RotateCw size={15} /><span>{isLandscape ? 'LANDSCAPE' : 'ROTATE PHONE'}</span>
+        </button>
         {isRecording && <span className="recording-timer"><i />{formatRecordingTime(recordingTime)}</span>}
       </header>
 
       <section className="performance-content">
+        {orientationMessage && <p className="orientation-message" role="status">{orientationMessage}</p>}
         <div className="performance-title">
           <p>CAMERA + TELEPROMPTER</p>
           <h1>{song.title}</h1>

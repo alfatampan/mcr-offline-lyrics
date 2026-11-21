@@ -193,6 +193,9 @@ button { cursor: pointer; }
 .performance-header { height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid #27272a; padding: 0 max(20px, calc((100vw - 1200px) / 2)); }
 .performance-header .icon-button:disabled { opacity: .4; cursor: not-allowed; }
 .performance-brand { display: flex; align-items: center; gap: 8px; color: #ef3340; font-family: "MCR Oswald", sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .16em; }
+.orientation-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; border: 1px solid #3f3f46; border-radius: 999px; background: #18181b; color: #d4d4d8; padding: 0 10px; font-family: "MCR Oswald", sans-serif; font-size: 8px; font-weight: 700; letter-spacing: .08em; white-space: nowrap; }
+.orientation-button:hover { border-color: #ef3340; color: #fff; }
+.orientation-message { flex: 0 0 auto; margin: -4px 0 8px; color: #fda4af; font-size: 10px; text-align: center; }
 .recording-timer { display: inline-flex; align-items: center; gap: 7px; color: #fafafa; font-size: 12px; font-variant-numeric: tabular-nums; }
 .recording-timer i, .recording-indicator i, .record-dot { width: 9px; height: 9px; display: inline-block; border-radius: 50%; background: #ef3340; box-shadow: 0 0 12px rgba(239,51,64,.55); }
 .performance-content { width: min(1200px, 100%); height: calc(100% - 62px); display: flex; flex-direction: column; margin: 0 auto; padding: 18px 24px 22px; }
@@ -276,6 +279,7 @@ button { cursor: pointer; }
   .performance-header { height: 56px; padding: 0 14px; }
   .performance-header .icon-button { width: 34px; height: 34px; }
   .performance-brand { font-size: 8px; letter-spacing: .1em; }
+  .orientation-button { min-height: 30px; gap: 4px; padding: 0 7px; font-size: 7px; }
   .performance-content { height: calc(100% - 56px); padding: 12px 12px 14px; }
   .performance-title { margin-bottom: 10px; }
   .performance-title h1 { font-size: 27px; }
@@ -287,4 +291,26 @@ button { cursor: pointer; }
   .recording-note { margin-top: 5px; font-size: 9px; }
   .prompter-panel { padding: 10px 12px 6px; }
   .prompter-lyrics { font-size: 22px; line-height: 1.35; }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .performance-header { height: 48px; padding: 0 12px; }
+  .performance-header .icon-button { width: 32px; height: 32px; }
+  .performance-brand { font-size: 8px; }
+  .performance-content { height: calc(100% - 48px); padding: 8px 12px 10px; }
+  .performance-title { margin-bottom: 7px; }
+  .performance-title p { margin-bottom: 0; font-size: 7px; }
+  .performance-title h1 { font-size: 24px; }
+  .performance-title > span { margin-top: 1px; font-size: 7px; }
+  .performance-layout { grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); grid-template-rows: minmax(0, 1fr); gap: 10px; }
+  .camera-panel { padding: 7px; }
+  .camera-preview { min-height: 35px; }
+  .record-controls { min-height: 34px; padding-top: 5px; }
+  .record-button, .download-recording { min-height: 27px; padding-inline: 10px; font-size: 8px; }
+  .recording-note { margin-top: 3px; font-size: 8px; }
+  .prompter-panel { padding: 8px 10px 5px; }
+  .prompter-toolbar { padding-bottom: 6px; }
+  .prompter-toolbar button { padding: 5px 8px; }
+  .scroll-speed { padding: 5px 0; }
+  .prompter-lyrics { font-size: 20px; line-height: 1.3; }
 }

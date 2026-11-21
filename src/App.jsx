@@ -129,15 +129,15 @@ function CoverArt({ album, size = 'card', index = 0 }) {
   const words = album.split(/[\s/:]+/).filter(Boolean)
   const initials = words.slice(0, 3).map((word) => word[0]).join('').toUpperCase()
   const coverMap = {
-    'Three Cheers for Sweet Revenge': '/covers/three-cheers.jpg',
-    'The Black Parade': '/covers/black-parade.jpg',
-    'Danger Days: The True Lives of the Fabulous Killjoys': '/covers/danger-days.jpg',
-    'I Brought You My Bullets, You Brought Me Your Love': '/covers/bullets.jpg',
-    'May Death Never Stop You': '/covers/may-death.jpg',
-    'Life on the Murder Scene': '/covers/life-on-the-murder-scene.jpg',
-    'The Black Parade Is Dead!': '/covers/black-parade-is-dead.jpg',
-    'Conventional Weapons': '/covers/conventional-weapons.jpg',
-    'The Foundations of Decay': '/covers/foundations-of-decay.jpg',
+    'Three Cheers for Sweet Revenge': 'covers/three-cheers.jpg',
+    'The Black Parade': 'covers/black-parade.jpg',
+    'Danger Days: The True Lives of the Fabulous Killjoys': 'covers/danger-days.jpg',
+    'I Brought You My Bullets, You Brought Me Your Love': 'covers/bullets.jpg',
+    'May Death Never Stop You': 'covers/may-death.jpg',
+    'Life on the Murder Scene': 'covers/life-on-the-murder-scene.jpg',
+    'The Black Parade Is Dead!': 'covers/black-parade-is-dead.jpg',
+    'Conventional Weapons': 'covers/conventional-weapons.jpg',
+    'The Foundations of Decay': 'covers/foundations-of-decay.jpg',
   }
   const coverImage = coverMap[album]
   return (
@@ -152,7 +152,7 @@ function CoverArt({ album, size = 'card', index = 0 }) {
       role="img"
     >
       {coverImage ? (
-        <img className="cover-image" src={coverImage} alt={`${album} cover`} />
+        <img className="cover-image" src={`${import.meta.env.BASE_URL}${coverImage}`} alt={`${album} cover`} />
       ) : (
         <>
           <span className="cover-noise" />
@@ -196,7 +196,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    fetch('/data/mcr-lyrics-complete.json')
+    fetch(`${import.meta.env.BASE_URL}data/mcr-lyrics-complete.json`)
       .then((response) => {
         if (!response.ok) throw new Error(`Unable to load lyrics (${response.status})`)
         return response.json()

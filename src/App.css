@@ -1,25 +1,25 @@
 @font-face {
   font-family: "MCR Oswald";
-  src: url("/fonts/Oswald-SemiBold.ttf") format("truetype");
+  src: url("/mcr-offline-lyrics/fonts/Oswald-SemiBold.ttf") format("truetype");
   font-weight: 600;
   font-display: swap;
 }
 @font-face {
   font-family: "MCR Oswald";
-  src: url("/fonts/Oswald-Bold.ttf") format("truetype");
+  src: url("/mcr-offline-lyrics/fonts/Oswald-Bold.ttf") format("truetype");
   font-weight: 700;
   font-display: swap;
 }
 @font-face {
   font-family: "MCR Cormorant";
-  src: url("/fonts/Cormorant-Italic.ttf") format("truetype");
+  src: url("/mcr-offline-lyrics/fonts/Cormorant-Italic.ttf") format("truetype");
   font-weight: 700;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: "MCR Cormorant";
-  src: url("/fonts/Cormorant-SemiBold.ttf") format("truetype");
+  src: url("/mcr-offline-lyrics/fonts/Cormorant-SemiBold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import Fuse from 'fuse.js'
-import { ArrowLeft, Clock3, Disc3, Library, ListMusic, Music2, Search, Wifi, WifiOff, X } from 'lucide-react'
+import { ArrowLeft, Clock3, Disc3, Download, ListMusic, Music2, Search, Share2, Wifi, WifiOff, X } from 'lucide-react'
 import './App.css'
 
 const canonicalAlbums = [
@@ -176,6 +176,16 @@ function getLyricSnippet(lyrics, query) {
   return term ? lines.find((line) => line.toLowerCase().includes(term))?.trim() || '' : ''
 }
 
+function InstallButton({ isInstalled, installPrompt, onInstall }) {
+  if (isInstalled) return null
+  return (
+    <button className="install-button" type="button" onClick={onInstall}>
+      <Download size={15} />
+      <span>{installPrompt ? 'INSTALL APP' : 'ADD TO HOME'}</span>
+    </button>
+  )
+}
+
 function App() {
   const [songs, setSongs] = useState([])
   const [query, setQuery] = useState('')
@@ -184,6 +194,40 @@ function App() {
   const [selectedSong, setSelectedSong] = useState(null)
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [loadError, setLoadError] = useState('')
+  const [installPrompt, setInstallPrompt] = useState(null)
+  const [showIosInstall, setShowIosInstall] = useState(false)
+  const [isInstalled, setIsInstalled] = useState(
+    window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
+  )
+
+  useEffect(() => {
+    const handleBeforeInstall = (event) => {
+      event.preventDefault()
+      setInstallPrompt(event)
+    }
+    const handleInstalled = () => {
+      setInstallPrompt(null)
+      setShowIosInstall(false)
+      setIsInstalled(true)
+    }
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall)
+    window.addEventListener('appinstalled', handleInstalled)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
+      window.removeEventListener('appinstalled', handleInstalled)
+    }
+  }, [])
+
+  const handleInstall = async () => {
+    if (installPrompt) {
+      installPrompt.prompt()
+      await installPrompt.userChoice
+      setInstallPrompt(null)
+      return
+    }
+    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent)
+    if (isIos) setShowIosInstall(true)
+  }
 
   useEffect(() => {
     const updateStatus = () => setIsOnline(navigator.onLine)
@@ -279,6 +323,7 @@ function App() {
           <button className="icon-button" type="button" onClick={() => setSelectedSong(null)} aria-label="Back">
             <ArrowLeft size={20} />
           </button>
+          <InstallButton isInstalled={isInstalled} installPrompt={installPrompt} onInstall={handleInstall} />
           <div className={`status-badge ${isOnline ? '' : 'offline'}`}>
             {isOnline ? <Wifi size={13} /> : <WifiOff size={13} />}
             {isOnline ? 'ONLINE' : 'OFFLINE'}
@@ -308,6 +353,7 @@ function App() {
           <button className="icon-button" type="button" onClick={() => setSelectedAlbum(null)} aria-label="Back to albums">
             <ArrowLeft size={20} />
           </button>
+          <InstallButton isInstalled={isInstalled} installPrompt={installPrompt} onInstall={handleInstall} />
           <div className={`status-badge ${isOnline ? '' : 'offline'}`}>
             {isOnline ? <Wifi size={13} /> : <WifiOff size={13} />}
             {isOnline ? 'ONLINE' : 'OFFLINE'}
@@ -346,6 +392,7 @@ function App() {
           {isOnline ? <Wifi size={13} /> : <WifiOff size={13} />}
           {isOnline ? 'ONLINE' : 'OFFLINE'}
         </div>
+        <InstallButton isInstalled={isInstalled} installPrompt={installPrompt} onInstall={handleInstall} />
       </header>
 
       <section className="jakarta-hero" aria-label="My Chemical Romance live in Jakarta illustration">
@@ -449,6 +496,17 @@ function App() {
         <button type="button" className={query ? 'active' : ''} onClick={() => { setViewMode('search'); document.querySelector('.search-wrap input')?.focus() }}><Search size={20} /><span>Search</span></button>
         <button type="button" className={!query && viewMode === 'library' ? 'active' : ''} onClick={() => { setQuery(''); setViewMode('library'); setSelectedAlbum(null) }}><ListMusic size={20} /><span>Library</span></button>
       </nav>
+
+      {showIosInstall && (
+        <div className="install-sheet-backdrop" role="presentation" onClick={() => setShowIosInstall(false)}>
+          <section className="install-sheet" role="dialog" aria-modal="true" aria-label="Install MCR Lyrics" onClick={(event) => event.stopPropagation()}>
+            <button className="install-sheet-close" type="button" onClick={() => setShowIosInstall(false)} aria-label="Close"><X size={18} /></button>
+            <div className="install-sheet-icon"><Music2 size={24} /></div>
+            <h2>Add to Home Screen</h2>
+            <p>Tap <Share2 size={16} /> in Safari, then choose <strong>Add to Home Screen</strong>.</p>
+          </section>
+        </div>
+      )}
     </main>
   )
 }

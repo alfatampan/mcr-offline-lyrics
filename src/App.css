@@ -119,6 +119,10 @@ button { cursor: pointer; }
 .install-sheet-icon { width: 48px; height: 48px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 50%; background: #ef3340; color: #fff; }
 .install-sheet h2 { margin: 0 0 8px; font-family: "MCR Cormorant", Georgia, serif; font-size: 30px; }
 .install-sheet p { margin: 0; color: #a1a1aa; font-size: 13px; line-height: 1.7; }
+.install-sheet ol { margin: 12px auto 0; padding-left: 22px; max-width: 390px; color: #d4d4d8; font-size: 13px; line-height: 1.7; text-align: left; }
+.install-sheet li { padding: 3px 0 3px 4px; }
+.install-sheet li::marker { color: #ef3340; font-weight: 700; }
+.install-sheet-note, .install-help-note { margin-top: 12px !important; color: #71717a !important; font-size: 11px !important; }
 .install-sheet p svg { vertical-align: middle; }
 
 .library-heading { padding: 48px 0 24px; }

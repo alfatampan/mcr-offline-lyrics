@@ -186,6 +186,56 @@ function InstallButton({ isInstalled, installPrompt, onInstall }) {
   )
 }
 
+function InstallHelpDialog({ platform, onClose }) {
+  if (!platform) return null
+
+  const instructions = {
+    ios: (
+      <>
+        <p>Install with Safari:</p>
+        <ol>
+          <li>Open this site in <strong>Safari</strong>. If you are in another app, use Share and choose Open in Safari.</li>
+          <li>Tap <Share2 size={15} /> <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</li>
+          <li>Tap <strong>Add</strong> to finish.</li>
+        </ol>
+      </>
+    ),
+    android: (
+      <>
+        <p>Install with Chrome:</p>
+        <ol>
+          <li>Open Chrome's <strong>⋮</strong> menu.</li>
+          <li>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li>
+          <li>Confirm the prompt.</li>
+        </ol>
+        <p className="install-help-note">If neither option appears, update Chrome and reopen this HTTPS site.</p>
+      </>
+    ),
+    desktop: (
+      <>
+        <p>Install with Chrome or Edge:</p>
+        <ol>
+          <li>Look for the install icon at the right side of the address bar, or open the browser menu.</li>
+          <li>Choose <strong>Install MCR Offline Lyrics</strong> or <strong>Apps → Install this site as an app</strong>.</li>
+          <li>Confirm the prompt.</li>
+        </ol>
+        <p className="install-help-note">If there is no install option, open this link in an up-to-date Chrome or Edge window.</p>
+      </>
+    ),
+  }
+
+  return (
+    <div className="install-sheet-backdrop" role="presentation" onClick={onClose}>
+      <section className="install-sheet" role="dialog" aria-modal="true" aria-label="Install MCR Lyrics" onClick={(event) => event.stopPropagation()}>
+        <button className="install-sheet-close" type="button" onClick={onClose} aria-label="Close"><X size={18} /></button>
+        <div className="install-sheet-icon"><Download size={22} /></div>
+        <h2>Install MCR Lyrics</h2>
+        {instructions[platform]}
+      </section>
+    </div>
+  )
+}
+
 function PerformanceRecorder({ song, onClose }) {
   const videoRef = useRef(null)
   const lyricsRef = useRef(null)
@@ -398,7 +448,7 @@ function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [loadError, setLoadError] = useState('')
   const [installPrompt, setInstallPrompt] = useState(null)
-  const [showIosInstall, setShowIosInstall] = useState(false)
+  const [installHelpPlatform, setInstallHelpPlatform] = useState(null)
   const [isInstalled, setIsInstalled] = useState(
     window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
   )
@@ -410,7 +460,7 @@ function App() {
     }
     const handleInstalled = () => {
       setInstallPrompt(null)
-      setShowIosInstall(false)
+      setInstallHelpPlatform(null)
       setIsInstalled(true)
     }
     window.addEventListener('beforeinstallprompt', handleBeforeInstall)
@@ -423,13 +473,24 @@ function App() {
 
   const handleInstall = async () => {
     if (installPrompt) {
-      installPrompt.prompt()
-      await installPrompt.userChoice
+      const promptEvent = installPrompt
       setInstallPrompt(null)
+      try {
+        await promptEvent.prompt()
+        const choice = await promptEvent.userChoice
+        if (choice?.outcome === 'accepted') setIsInstalled(true)
+      } catch {
+        const userAgent = window.navigator.userAgent
+        const isIos = /iphone|ipad|ipod/i.test(userAgent)
+          || (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1)
+        setInstallHelpPlatform(isIos ? 'ios' : /android/i.test(userAgent) ? 'android' : 'desktop')
+      }
       return
     }
-    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent)
-    if (isIos) setShowIosInstall(true)
+    const userAgent = window.navigator.userAgent
+    const isIos = /iphone|ipad|ipod/i.test(userAgent)
+      || (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1)
+    setInstallHelpPlatform(isIos ? 'ios' : /android/i.test(userAgent) ? 'android' : 'desktop')
   }
 
   useEffect(() => {
@@ -550,6 +611,7 @@ function App() {
             )}
           </div>
         </article>
+        <InstallHelpDialog platform={installHelpPlatform} onClose={() => setInstallHelpPlatform(null)} />
       </main>
     )
   }
@@ -586,6 +648,7 @@ function App() {
             </button>
           ))}
         </section>
+        <InstallHelpDialog platform={installHelpPlatform} onClose={() => setInstallHelpPlatform(null)} />
       </main>
     )
   }
@@ -712,16 +775,7 @@ function App() {
         <button type="button" className={!query && viewMode === 'library' ? 'active' : ''} onClick={() => { setQuery(''); setViewMode('library'); setSelectedAlbum(null) }}><ListMusic size={20} /><span>Library</span></button>
       </nav>
 
-      {showIosInstall && (
-        <div className="install-sheet-backdrop" role="presentation" onClick={() => setShowIosInstall(false)}>
-          <section className="install-sheet" role="dialog" aria-modal="true" aria-label="Install MCR Lyrics" onClick={(event) => event.stopPropagation()}>
-            <button className="install-sheet-close" type="button" onClick={() => setShowIosInstall(false)} aria-label="Close"><X size={18} /></button>
-            <div className="install-sheet-icon"><Music2 size={24} /></div>
-            <h2>Add to Home Screen</h2>
-            <p>Tap <Share2 size={16} /> in Safari, then choose <strong>Add to Home Screen</strong>.</p>
-          </section>
-        </div>
-      )}
+      <InstallHelpDialog platform={installHelpPlatform} onClose={() => setInstallHelpPlatform(null)} />
     </main>
   )
 }

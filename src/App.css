@@ -1,0 +1,186 @@
+@font-face {
+  font-family: "MCR Oswald";
+  src: url("/fonts/Oswald-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MCR Oswald";
+  src: url("/fonts/Oswald-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MCR Cormorant";
+  src: url("/fonts/Cormorant-Italic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MCR Cormorant";
+  src: url("/fonts/Cormorant-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  font-family: "MCR Oswald", Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #f4f4f5;
+  background: #09090b;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html { background: #09090b; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #09090b; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+
+.library, .album-page { min-height: 100vh; max-width: 1120px; margin: 0 auto; padding: 0 32px 70px; }
+.topbar { height: 78px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #27272a; }
+.topbar.compact { max-width: 1120px; margin: 0 auto; }
+.brand { display: flex; align-items: center; gap: 11px; }
+.brand-mark { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #e11d48; color: white; box-shadow: 0 0 28px rgba(225,29,72,.18); }
+.brand > div:last-child { display: flex; flex-direction: column; line-height: 1; }
+.brand span { font-family: "MCR Oswald", sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .14em; }
+.brand small { margin-top: 5px; color: #71717a; font-size: 10px; text-transform: uppercase; letter-spacing: .16em; }
+
+.jakarta-hero {
+  position: relative;
+  height: 240px;
+  margin-top: 24px;
+  overflow: hidden;
+  border: 1px solid #3a302b;
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(8,8,8,.96) 0%, rgba(8,8,8,.78) 42%, rgba(8,8,8,.12) 100%),
+    repeating-linear-gradient(135deg, #17110f 0 12px, #211713 12px 24px);
+}
+.jakarta-copy { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 28px 34px; }
+.jakarta-copy p { margin: 0 0 8px; color: #ef3340; font-size: 9px; font-weight: 700; letter-spacing: .28em; }
+.jakarta-copy h1 { max-width: 360px; margin: 0; color: #f2eadf; font-family: "MCR Cormorant", Georgia, serif; font-size: clamp(38px, 6vw, 62px); font-weight: 600; line-height: .88; letter-spacing: -.055em; }
+.jakarta-copy h1 strong { display: block; color: #ef3340; font-family: "MCR Cormorant", Georgia, serif; font-style: italic; }
+.jakarta-copy span { margin-top: 14px; color: #a99d92; font-size: 8px; font-weight: 800; letter-spacing: .16em; }
+.jakarta-art { position: absolute; right: -10px; bottom: -2px; width: 54%; height: 96%; }
+.jakarta-art .sun { fill: #ef3340; opacity: .92; }
+.jakarta-art .birds path { fill: none; stroke: #d9ccbc; stroke-width: 3; stroke-linecap: round; }
+.jakarta-art .skyline rect, .jakarta-art .skyline path { fill: #100d0c; stroke: #e1d4c4; stroke-width: 1.5; }
+.jakarta-art .stage path, .jakarta-art .stage rect { fill: #ef3340; stroke: #ef3340; }
+.jakarta-art .crowd circle { fill: #080808; }
+
+.status-badge { height: 30px; border-radius: 999px; display: inline-flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid rgba(52,211,153,.18); color: #34d399; background: rgba(52,211,153,.06); font-size: 9px; font-weight: 800; letter-spacing: .12em; }
+.status-badge.offline { color: #fb7185; border-color: rgba(251,113,133,.18); background: rgba(251,113,133,.06); }
+.icon-button { width: 38px; height: 38px; border: 1px solid #27272a; border-radius: 50%; display: grid; place-items: center; background: #111114; color: #d4d4d8; }
+.icon-button:hover { border-color: #52525b; color: #fff; }
+
+.library-heading { padding: 48px 0 24px; }
+.library-heading p { margin: 0 0 8px; color: #e11d48; font-size: 10px; font-weight: 800; letter-spacing: .24em; }
+.library-heading h1 { margin: 0; font-family: "MCR Cormorant", Georgia, serif; font-size: clamp(42px, 7vw, 68px); font-weight: 600; line-height: 1; letter-spacing: -.04em; }
+
+.search-wrap { height: 52px; display: flex; align-items: center; gap: 12px; border: 1px solid #27272a; border-radius: 8px; background: #111114; padding: 0 14px; color: #71717a; transition: border-color .2s, box-shadow .2s; }
+.search-wrap:focus-within { border-color: #e11d48; box-shadow: 0 0 0 3px rgba(225,29,72,.08); }
+.search-wrap input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: #fafafa; font-size: 14px; }
+.search-wrap input::placeholder { color: #52525b; }
+.search-wrap input::-webkit-search-cancel-button { display: none; }
+.search-wrap button { width: 30px; height: 30px; flex: 0 0 auto; border: 0; border-radius: 50%; display: grid; place-items: center; background: transparent; color: #71717a; }
+
+.album-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px 18px; padding-top: 30px; }
+.album-card { min-width: 0; border: 0; padding: 0; background: transparent; color: #f4f4f5; text-align: left; }
+.album-card:hover .cover-art { transform: translateY(-4px); box-shadow: 0 18px 38px rgba(0,0,0,.38); }
+.album-card-copy { padding-top: 12px; }
+.album-card h2 { margin: 0 0 5px; overflow: hidden; font-family: "MCR Oswald", sans-serif; font-size: 14px; font-weight: 600; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.album-card p { margin: 0; color: #71717a; font-size: 11px; }
+
+.cover-art { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 6px; background: linear-gradient(145deg, var(--cover-dark), var(--cover-mid) 68%, var(--cover-accent)); isolation: isolate; transition: transform .18s ease, box-shadow .18s ease; box-shadow: 0 8px 24px rgba(0,0,0,.24); }
+.cover-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cover-noise { position: absolute; inset: 0; opacity: .2; background-image: radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 1px), radial-gradient(circle at 70% 60%, #fff 0 1px, transparent 1px); background-size: 13px 13px, 17px 17px; }
+.cover-orbit { position: absolute; width: 58%; aspect-ratio: 1; left: 21%; top: 21%; border: 2px solid rgba(255,255,255,.38); border-radius: 50%; box-shadow: 0 0 0 12px rgba(255,255,255,.06), 0 0 0 24px rgba(255,255,255,.04); }
+.cover-initials { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,.92); font-family: Georgia, serif; font-size: clamp(42px, 7vw, 78px); letter-spacing: -.08em; text-shadow: 0 4px 18px rgba(0,0,0,.28); }
+.cover-title { position: absolute; z-index: 2; left: 8%; right: 8%; bottom: 9%; max-height: 22%; overflow: hidden; color: white; font-family: Georgia, serif; font-size: clamp(7px, 1.2vw, 13px); line-height: 1.05; text-align: center; text-transform: uppercase; text-shadow: 0 1px 8px #000; }
+.cover-artist { position: absolute; z-index: 2; left: 8%; top: 7%; color: rgba(255,255,255,.72); font-size: clamp(5px, .6vw, 8px); font-weight: 800; letter-spacing: .16em; }
+.cover-hero { width: 220px; flex: 0 0 220px; }
+
+.search-results { padding-top: 24px; }
+.result-count { padding: 0 4px 12px; color: #71717a; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.result-row { width: 100%; min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 0; border-bottom: 1px solid #27272a; background: transparent; color: #f4f4f5; text-align: left; padding: 12px 8px; }
+.result-row:hover { background: #111114; }
+.result-row h3 { margin: 0 0 4px; font-size: 15px; }
+.result-row p { margin: 0 0 5px; color: #71717a; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.result-row span { display: block; max-width: 700px; overflow: hidden; color: #a1a1aa; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.result-row time { flex: 0 0 auto; color: #71717a; font-size: 11px; }
+.load-error { padding: 30px 0; text-align: center; color: #fb7185; }
+
+.album-page { max-width: none; padding: 0 32px 70px; }
+.album-page .topbar { max-width: 1056px; }
+.album-hero { max-width: 1056px; margin: 0 auto; display: flex; align-items: flex-end; gap: 28px; padding: 48px 0 38px; border-bottom: 1px solid #27272a; }
+.album-hero-copy { min-width: 0; padding-bottom: 4px; }
+.album-hero-copy p { margin: 0 0 8px; color: #e11d48; font-size: 10px; font-weight: 800; letter-spacing: .22em; }
+.album-hero-copy h1 { margin: 0 0 10px; font-family: "MCR Cormorant", Georgia, serif; font-size: clamp(38px, 6vw, 62px); font-weight: 600; line-height: 1; letter-spacing: -.04em; }
+.album-hero-copy span { color: #71717a; font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.track-section { max-width: 1056px; margin: 0 auto; padding-top: 22px; }
+.section-label { display: flex; justify-content: space-between; padding: 0 8px 12px; color: #71717a; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+.track-row { width: 100%; min-height: 64px; display: grid; grid-template-columns: 42px 1fr auto; align-items: center; border: 0; border-bottom: 1px solid #18181b; background: transparent; color: #e4e4e7; text-align: left; padding: 8px; }
+.track-row:hover { background: #111114; }
+.track-number { color: #52525b; font-size: 11px; font-variant-numeric: tabular-nums; }
+.track-name { font-size: 14px; }
+.track-time { color: #71717a; font-size: 11px; font-variant-numeric: tabular-nums; }
+
+.reader { min-height: 100vh; background: #09090b; }
+.reader-header { max-width: 1120px; height: 78px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #27272a; padding: 0 32px; }
+.lyrics-reader { max-width: 760px; margin: 0 auto; padding: 64px 32px 100px; }
+.reader-kicker { color: #e11d48; font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+.lyrics-reader h1 { margin: 12px 0 10px; font-family: "MCR Cormorant", Georgia, serif; font-size: clamp(38px, 8vw, 68px); font-weight: 600; line-height: 1.05; letter-spacing: -.04em; }
+.reader-duration { display: flex; align-items: center; gap: 7px; color: #71717a; font-size: 12px; }
+.lyrics { margin-top: 48px; color: #d4d4d8; font-family: Georgia, serif; font-size: clamp(18px, 2.4vw, 23px); line-height: 1.8; }
+.lyrics p { margin: 0; }
+
+.mobile-nav { display: none; }
+
+@media (max-width: 800px) {
+  .album-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cover-initials { font-size: clamp(38px, 10vw, 64px); }
+  .cover-title { font-size: clamp(7px, 1.8vw, 11px); }
+  .cover-artist { font-size: clamp(5px, 1vw, 7px); }
+}
+
+@media (max-width: 640px) {
+  .library, .album-page { padding: 0 16px 92px; }
+  .topbar { height: 68px; }
+  .jakarta-hero { height: 190px; margin-top: 18px; }
+  .jakarta-copy { padding: 22px 20px; }
+  .jakarta-copy h1 { max-width: 220px; font-size: 38px; }
+  .jakarta-copy span { max-width: 180px; line-height: 1.6; }
+  .jakarta-art { right: -92px; bottom: -5px; width: 82%; height: 88%; opacity: .82; }
+  .brand-mark { width: 34px; height: 34px; }
+  .brand small { display: none; }
+  .library-heading { padding: 34px 2px 20px; }
+  .library-heading h1 { font-size: 44px; }
+  .library-heading p { font-size: 9px; }
+  .search-wrap { height: 50px; }
+  .album-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; padding-top: 22px; }
+  .album-card h2 { font-size: 13px; }
+  .cover-art { border-radius: 5px; }
+  .cover-initials { font-size: 13vw; }
+  .cover-title { font-size: 8px; }
+  .cover-artist { font-size: 5px; }
+  .mobile-nav { position: fixed; z-index: 20; left: 12px; right: 12px; bottom: 10px; height: 68px; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; border: 1px solid #27272a; border-radius: 18px; background: rgba(17,17,20,.96); backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0,0,0,.45); }
+  .mobile-nav button { height: 100%; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: transparent; color: #71717a; }
+  .mobile-nav button.active { color: #f43f5e; }
+  .mobile-nav span { font-size: 9px; font-weight: 700; }
+  .album-page { padding-inline: 16px; }
+  .album-hero { align-items: center; gap: 16px; padding: 28px 0 26px; }
+  .cover-hero { width: 138px; flex-basis: 138px; }
+  .cover-hero .cover-initials { font-size: 44px; }
+  .cover-hero .cover-title { font-size: 7px; }
+  .cover-hero .cover-artist { font-size: 4px; }
+  .album-hero-copy h1 { font-size: 30px; }
+  .album-hero-copy span { display: block; line-height: 1.5; }
+  .track-row { grid-template-columns: 34px 1fr auto; min-height: 62px; }
+  .reader-header { height: 68px; padding: 0 16px; }
+  .lyrics-reader { padding: 44px 20px 80px; }
+  .lyrics { margin-top: 36px; line-height: 1.7; }
+  .result-row span { max-width: 55vw; }
+}

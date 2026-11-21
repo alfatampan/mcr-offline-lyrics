@@ -1,16 +1,79 @@
-# React + Vite
+# MCR Offline Lyrics
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A full-offline My Chemical Romance lyrics and discography PWA, styled with a **Live in Jakarta / The Black Parade** concert-poster theme.
 
-Currently, two official plugins are available:
+**Live app:** https://alfatampan.github.io/mcr-offline-lyrics/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Complete local MCR lyrics dataset
+- Offline access after the first visit
+- Instant fuzzy search across song titles, lyrics, and albums
+- Album covers and dedicated album track pages
+- Lyrics reader with Screen Wake Lock support
+- Mobile-first Jakarta concert poster interface
+- Installable PWA for Android, iPhone, iPad, Windows, and macOS
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Screenshots
 
-## Expanding the Oxlint configuration
+### Desktop
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+![MCR Offline Lyrics desktop interface](docs/screenshots/desktop.png)
+
+### Mobile
+
+![MCR Offline Lyrics mobile interface](docs/screenshots/mobile.png)
+
+## Install on Android / Chrome
+
+1. Open https://alfatampan.github.io/mcr-offline-lyrics/
+2. Open Chrome's three-dot menu.
+3. Select **Install app** or **Add to Home screen**.
+4. Confirm by tapping **Install**.
+
+You can also use the red **INSTALL APP** button in the app header. After installation, open MCR Offline Lyrics from the home screen or app drawer.
+
+## Install on iPhone / iPad / Safari
+
+1. Open https://alfatampan.github.io/mcr-offline-lyrics/ in Safari.
+2. Tap the **Share** button.
+3. Scroll down and tap **Add to Home Screen**.
+4. Tap **Add**.
+
+The app can also show its iOS installation instructions when you tap **ADD TO HOME**.
+
+## Install on Windows / macOS
+
+1. Open the app in Chrome or Edge.
+2. Click the red **INSTALL APP** button in the header.
+3. Alternatively, open the browser menu and choose **Install MCR Offline Lyrics**.
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open the local URL printed by Vite, typically `http://localhost:5173`.
+
+## Production build
+
+```bash
+npm run build
+npm run preview
+```
+
+The build output is written to `dist/`.
+
+## Tech
+
+- React
+- Vite
+- `vite-plugin-pwa` / Workbox
+- Fuse.js
+- Lucide React
+
+## License
+
+Licensed under the [MIT License](LICENSE).

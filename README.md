@@ -16,13 +16,25 @@ A full-offline My Chemical Romance lyrics and discography PWA, styled with a **L
 
 ## Screenshots
 
-### Desktop
+The album browser, album detail, and lyrics-reader shots capture each complete page. The Library shot shows the mobile screen at normal viewport size; its track list scrolls like it does on a phone.
 
-![MCR Offline Lyrics desktop interface](docs/screenshots/desktop.png)
+### Album browser
 
-### Mobile
+![MCR Offline Lyrics album browser on desktop](docs/screenshots/desktop.png)
 
-![MCR Offline Lyrics mobile interface](docs/screenshots/mobile.png)
+![MCR Offline Lyrics album browser on mobile](docs/screenshots/mobile.png)
+
+### Album details
+
+![Album detail and track list](docs/screenshots/album-detail.png)
+
+### Library
+
+![All-tracks Library view on mobile](docs/screenshots/library.png)
+
+### Lyrics reader
+
+![Lyrics reader view](docs/screenshots/lyrics-reader.png)
 
 ## Install on Android / Chrome
 

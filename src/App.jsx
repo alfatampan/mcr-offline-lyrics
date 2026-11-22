@@ -407,6 +407,25 @@ function PerformanceRecorder({ song, onClose }) {
         </div>
 
         <div className="performance-layout">
+          <section className="prompter-panel">
+            <div className="prompter-toolbar">
+              <span>LYRICS · 3 LINES</span>
+              <button type="button" onClick={() => setAutoScroll((active) => !active)} aria-pressed={autoScroll}>
+                {autoScroll ? <Pause size={15} /> : <Play size={15} />}
+                {autoScroll ? 'PAUSE SCROLL' : 'AUTO-SCROLL'}
+              </button>
+            </div>
+            <label className="scroll-speed">
+              <span>SCROLL SPEED</span>
+              <input type="range" min="1" max="8" value={scrollSpeed} onChange={(event) => setScrollSpeed(Number(event.target.value))} />
+            </label>
+            <div className="prompter-lyrics" ref={lyricsRef}>
+              {(song.lyrics || 'Lyrics unavailable').split('\n').filter((line) => line.trim()).map((line, index) => (
+                <p key={index}>{line}</p>
+              ))}
+            </div>
+          </section>
+
           <section className="camera-panel">
             <div className={`camera-preview ${cameraReady ? 'ready' : ''}`}>
               {cameraReady ? (
@@ -445,25 +464,6 @@ function PerformanceRecorder({ song, onClose }) {
             </div>
             {error && <p className="camera-error" role="alert">{error}</p>}
             <p className="recording-note">Works offline after first load. Camera and mic are recorded on this device; SAVE VIDEO downloads the local clip. Lyrics stay on-screen and are not burned into the video.</p>
-          </section>
-
-          <section className="prompter-panel">
-            <div className="prompter-toolbar">
-              <span>LYRICS</span>
-              <button type="button" onClick={() => setAutoScroll((active) => !active)} aria-pressed={autoScroll}>
-                {autoScroll ? <Pause size={15} /> : <Play size={15} />}
-                {autoScroll ? 'PAUSE SCROLL' : 'AUTO-SCROLL'}
-              </button>
-            </div>
-            <label className="scroll-speed">
-              <span>SCROLL SPEED</span>
-              <input type="range" min="1" max="8" value={scrollSpeed} onChange={(event) => setScrollSpeed(Number(event.target.value))} />
-            </label>
-            <div className="prompter-lyrics" ref={lyricsRef}>
-              {(song.lyrics || 'Lyrics unavailable').split('\n').map((line, index) =>
-                line.trim() ? <p key={index}>{line}</p> : <br key={index} />,
-              )}
-            </div>
           </section>
         </div>
       </section>

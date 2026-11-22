@@ -65,7 +65,7 @@ The app can also show its iOS installation instructions when you tap **ADD TO HO
 1. Open a song's lyrics and tap **RECORD WITH LYRICS**.
 2. Tap **ENABLE CAMERA** and allow camera and microphone access.
 3. If your device has multiple cameras, choose one from the camera menu.
-4. Adjust the lyrics scroll speed or tap **AUTO-SCROLL**.
+4. Read the compact three-line lyric window; adjust its speed or tap **AUTO-SCROLL** to advance the prompt.
 5. Rotate your phone sideways for landscape, or tap **ROTATE PHONE** to request landscape when your browser supports orientation lock.
 6. Tap **START RECORDING**; the camera preview and lyrics stay side-by-side on screen.
 7. Tap **STOP RECORDING**, then **SAVE VIDEO**.

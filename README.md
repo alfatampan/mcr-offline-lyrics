@@ -7,11 +7,11 @@ A full-offline My Chemical Romance lyrics and discography PWA, styled with a **L
 ## Features
 
 - Complete local MCR lyrics dataset
-- Offline access after the first visit
+- Offline access to the app and lyrics after the first online visit
 - Instant fuzzy search across song titles, lyrics, and albums
 - Album covers and dedicated album track pages
 - Lyrics reader with Screen Wake Lock support
-- Performance mode with front-camera recording and an adjustable scrolling lyrics teleprompter
+- Performance mode with selectable cameras, local video recording, and an adjustable scrolling lyrics teleprompter
 - Installable PWA for Android, iPhone, iPad, Windows, and macOS
 
 ## Screenshots
@@ -64,12 +64,13 @@ The app can also show its iOS installation instructions when you tap **ADD TO HO
 
 1. Open a song's lyrics and tap **RECORD WITH LYRICS**.
 2. Tap **ENABLE CAMERA** and allow camera and microphone access.
-3. Adjust the lyrics scroll speed or tap **AUTO-SCROLL**.
-4. Rotate your phone sideways for landscape, or tap **ROTATE PHONE** to request landscape when your browser supports orientation lock.
-5. Tap **START RECORDING**; the camera preview and lyrics stay side-by-side on screen.
-6. Tap **STOP RECORDING**, then **SAVE VIDEO**.
+3. If your device has multiple cameras, choose one from the camera menu.
+4. Adjust the lyrics scroll speed or tap **AUTO-SCROLL**.
+5. Rotate your phone sideways for landscape, or tap **ROTATE PHONE** to request landscape when your browser supports orientation lock.
+6. Tap **START RECORDING**; the camera preview and lyrics stay side-by-side on screen.
+7. Tap **STOP RECORDING**, then **SAVE VIDEO**.
 
-The downloaded clip contains the camera and microphone recording; the on-screen lyrics are a teleprompter and are not burned into that clip. To capture the lyrics on screen in your final video, use your phone's built-in screen recorder while Performance mode is open, or edit the saved camera clip with your preferred video editor. Camera recording requires a supported browser and permission; use the **ENABLE CAMERA** button on the live HTTPS site.
+The app and lyrics are cached after the first online visit, so performance mode can be used offline afterwards. The video is recorded in your browser and downloaded from a local in-memory file; it is not uploaded. The downloaded clip contains camera and microphone footage only—the lyrics are a teleprompter and are not burned into the video. To include on-screen lyrics, use your phone's built-in screen recorder while Performance mode is open, or add them in a video editor. Camera recording requires a supported browser and camera/microphone permission; use **ENABLE CAMERA** on the live HTTPS site.
 
 ## Run locally
 

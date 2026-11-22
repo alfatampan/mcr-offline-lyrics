@@ -244,6 +244,8 @@ function PerformanceRecorder({ song, onClose }) {
   const chunksRef = useRef([])
   const downloadUrlRef = useRef('')
   const [cameraReady, setCameraReady] = useState(false)
+  const [videoDevices, setVideoDevices] = useState([])
+  const [selectedCameraId, setSelectedCameraId] = useState('')
   const [isRecording, setIsRecording] = useState(false)
   const [autoScroll, setAutoScroll] = useState(false)
   const [scrollSpeed, setScrollSpeed] = useState(3)
@@ -291,7 +293,7 @@ function PerformanceRecorder({ song, onClose }) {
     if (downloadUrlRef.current) URL.revokeObjectURL(downloadUrlRef.current)
   }, [])
 
-  const startCamera = async () => {
+  const startCamera = async (deviceId = '') => {
     setError('')
     if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
       setError('Camera recording is not supported in this browser. Try the latest Safari or Chrome over HTTPS.')
@@ -300,16 +302,37 @@ function PerformanceRecorder({ song, onClose }) {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' },
+        video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: 'user' } },
         audio: true,
       })
       streamRef.current = stream
       setCameraReady(true)
+      setSelectedCameraId(stream.getVideoTracks()[0]?.getSettings().deviceId || deviceId)
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        setVideoDevices(devices.filter((device) => device.kind === 'videoinput'))
+      } catch {
+        setVideoDevices([])
+      }
     } catch (cameraError) {
-      setError(cameraError.name === 'NotAllowedError'
-        ? 'Allow camera and microphone access in your browser settings, then try again.'
-        : 'Could not start the camera. Close other camera apps and try again.')
+      setCameraReady(false)
+      const errorMessages = {
+        NotAllowedError: 'Allow camera and microphone access in your browser settings, then try again.',
+        NotFoundError: 'No camera or microphone was found on this device.',
+        NotReadableError: 'The camera is already in use by another app. Close it and try again.',
+        OverconstrainedError: 'That camera is unavailable. Choose a different camera.',
+        SecurityError: 'Camera access requires HTTPS or localhost.',
+      }
+      setError(errorMessages[cameraError.name] || `Could not start the camera (${cameraError.name}). ${cameraError.message}`)
     }
+  }
+
+  const switchCamera = async (deviceId) => {
+    if (!deviceId || isRecording) return
+    streamRef.current?.getTracks().forEach((track) => track.stop())
+    streamRef.current = null
+    setCameraReady(false)
+    await startCamera(deviceId)
   }
 
   const startRecording = () => {
@@ -391,14 +414,24 @@ function PerformanceRecorder({ song, onClose }) {
               ) : (
                 <div className="camera-placeholder">
                   <Camera size={30} />
-                  <span>Your front camera preview will appear here</span>
+                  <span>Your camera preview will appear here</span>
                 </div>
               )}
               {isRecording && <span className="recording-indicator"><i /> REC {formatRecordingTime(recordingTime)}</span>}
             </div>
             <div className="record-controls">
+              {cameraReady && videoDevices.length > 1 && (
+                <label className="camera-select">
+                  <Camera size={15} />
+                  <select aria-label="Select camera" value={selectedCameraId} disabled={isRecording} onChange={(event) => switchCamera(event.target.value)}>
+                    {videoDevices.map((device, index) => (
+                      <option key={device.deviceId} value={device.deviceId}>{device.label || `Camera ${index + 1}`}</option>
+                    ))}
+                  </select>
+                </label>
+              )}
               {!cameraReady ? (
-                <button className="record-button" type="button" onClick={startCamera}><Camera size={17} />ENABLE CAMERA</button>
+                <button className="record-button" type="button" onClick={() => startCamera()}><Camera size={17} />ENABLE CAMERA</button>
               ) : isRecording ? (
                 <button className="record-button stop" type="button" onClick={stopRecording}><span className="stop-square" />STOP RECORDING</button>
               ) : (
@@ -411,7 +444,7 @@ function PerformanceRecorder({ song, onClose }) {
               )}
             </div>
             {error && <p className="camera-error" role="alert">{error}</p>}
-            <p className="recording-note">Lyrics stay visible as your prompt. Your saved clip contains camera and microphone audio.</p>
+            <p className="recording-note">Works offline after first load. Camera and mic are recorded on this device; SAVE VIDEO downloads the local clip. Lyrics stay on-screen and are not burned into the video.</p>
           </section>
 
           <section className="prompter-panel">

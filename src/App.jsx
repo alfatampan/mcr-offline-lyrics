@@ -335,6 +335,13 @@ function PerformanceRecorder({ song, onClose }) {
     await startCamera(deviceId)
   }
 
+  const cycleCamera = () => {
+    if (videoDevices.length < 2 || isRecording) return
+    const currentIndex = videoDevices.findIndex((device) => device.deviceId === selectedCameraId)
+    const nextDevice = videoDevices[(currentIndex + 1) % videoDevices.length]
+    switchCamera(nextDevice.deviceId)
+  }
+
   const startRecording = () => {
     if (!streamRef.current) return
     setError('')
@@ -440,14 +447,9 @@ function PerformanceRecorder({ song, onClose }) {
             </div>
             <div className="record-controls">
               {cameraReady && videoDevices.length > 1 && (
-                <label className="camera-select">
-                  <Camera size={15} />
-                  <select aria-label="Select camera" value={selectedCameraId} disabled={isRecording} onChange={(event) => switchCamera(event.target.value)}>
-                    {videoDevices.map((device, index) => (
-                      <option key={device.deviceId} value={device.deviceId}>{device.label || `Camera ${index + 1}`}</option>
-                    ))}
-                  </select>
-                </label>
+                <button className="camera-switch-button" type="button" disabled={isRecording} onClick={cycleCamera}>
+                  <RotateCw size={15} />SWITCH CAMERA
+                </button>
               )}
               {!cameraReady ? (
                 <button className="record-button" type="button" onClick={() => startCamera()}><Camera size={17} />ENABLE CAMERA</button>

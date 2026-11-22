@@ -243,6 +243,9 @@ function PerformanceRecorder({ song, onClose }) {
   const recorderRef = useRef(null)
   const chunksRef = useRef([])
   const downloadUrlRef = useRef('')
+  const recordingCanvasStreamRef = useRef(null)
+  const animationFrameRef = useRef(null)
+  const zoomRef = useRef(1)
   const [cameraReady, setCameraReady] = useState(false)
   const [videoDevices, setVideoDevices] = useState([])
   const [selectedCameraId, setSelectedCameraId] = useState('')
@@ -252,6 +255,10 @@ function PerformanceRecorder({ song, onClose }) {
   const [recordingTime, setRecordingTime] = useState(0)
   const [downloadUrl, setDownloadUrl] = useState('')
   const [recordingType, setRecordingType] = useState('')
+  const [recordingBlob, setRecordingBlob] = useState(null)
+  const [zoom, setZoom] = useState(1)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveMessage, setSaveMessage] = useState('')
   const [error, setError] = useState('')
   const [orientationMessage, setOrientationMessage] = useState('')
   const [isLandscape, setIsLandscape] = useState(() => window.matchMedia('(orientation: landscape)').matches)
@@ -289,6 +296,8 @@ function PerformanceRecorder({ song, onClose }) {
 
   useEffect(() => () => {
     if (recorderRef.current?.state !== 'inactive') recorderRef.current?.stop()
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+    recordingCanvasStreamRef.current?.getTracks().forEach((track) => track.stop())
     streamRef.current?.getTracks().forEach((track) => track.stop())
     if (downloadUrlRef.current) URL.revokeObjectURL(downloadUrlRef.current)
   }, [])
@@ -345,15 +354,53 @@ function PerformanceRecorder({ song, onClose }) {
   const startRecording = () => {
     if (!streamRef.current) return
     setError('')
+    setSaveMessage('')
     setRecordingTime(0)
     chunksRef.current = []
     if (downloadUrlRef.current) URL.revokeObjectURL(downloadUrlRef.current)
     downloadUrlRef.current = ''
     setDownloadUrl('')
+    setRecordingBlob(null)
+
+    const video = videoRef.current
+    if (!video || !HTMLCanvasElement.prototype.captureStream) {
+      setError('Video recording is not supported by this browser.')
+      return
+    }
+
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+    if (!context) {
+      setError('Could not prepare the camera video for recording.')
+      return
+    }
+    const drawFrame = () => {
+      if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0) {
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth
+          canvas.height = video.videoHeight
+        }
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        context.save()
+        context.translate(canvas.width / 2, canvas.height / 2)
+        context.scale(zoomRef.current, zoomRef.current)
+        context.drawImage(video, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height)
+        context.restore()
+      }
+      animationFrameRef.current = requestAnimationFrame(drawFrame)
+    }
+    drawFrame()
+    const canvasStream = canvas.captureStream(30)
+    recordingCanvasStreamRef.current = canvasStream
+    const recordingStream = new MediaStream([
+      ...canvasStream.getVideoTracks(),
+      ...streamRef.current.getAudioTracks(),
+    ])
+
     const supportedTypes = ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp8,opus', 'video/webm']
     const mimeType = supportedTypes.find((type) => MediaRecorder.isTypeSupported(type))
     try {
-      const recorder = new MediaRecorder(streamRef.current, mimeType ? { mimeType } : undefined)
+      const recorder = new MediaRecorder(recordingStream, mimeType ? { mimeType } : undefined)
       recorderRef.current = recorder
       recorder.ondataavailable = (event) => {
         if (event.data.size) chunksRef.current.push(event.data)
@@ -361,17 +408,70 @@ function PerformanceRecorder({ song, onClose }) {
       recorder.onstop = () => {
         const type = recorder.mimeType || mimeType || 'video/webm'
         const clip = new Blob(chunksRef.current, { type })
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+        animationFrameRef.current = null
+        recordingCanvasStreamRef.current?.getTracks().forEach((track) => track.stop())
+        recordingCanvasStreamRef.current = null
+        if (!clip.size) {
+          setError('The recording is empty. Please try recording again.')
+          setIsRecording(false)
+          return
+        }
         const url = URL.createObjectURL(clip)
         downloadUrlRef.current = url
         setDownloadUrl(url)
+        setRecordingBlob(clip)
         setRecordingType(type.includes('mp4') ? 'mp4' : 'webm')
         setIsRecording(false)
       }
       recorder.start(1000)
       setIsRecording(true)
     } catch {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+      canvasStream.getTracks().forEach((track) => track.stop())
+      recordingCanvasStreamRef.current = null
       setError('Recording could not start on this browser. Try a current version of Safari or Chrome.')
     }
+  }
+
+  const saveRecording = async () => {
+    if (!recordingBlob || !downloadUrlRef.current || isSaving) return
+    const fileName = `mcr-${song.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.${recordingType}`
+    setIsSaving(true)
+    setSaveMessage('')
+    try {
+      const file = new File([recordingBlob], fileName, { type: recordingBlob.type })
+      const userAgent = navigator.userAgent
+      const isIos = /iphone|ipad|ipod/i.test(userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+      const isAndroid = /android/i.test(userAgent)
+      if ((isIos || isAndroid) && navigator.canShare?.({ files: [file] }) && navigator.share) {
+        await navigator.share({ files: [file], title: song.title })
+        setSaveMessage('Choose Save Video, Save to Files, or another storage app in the share menu.')
+        return
+      }
+      const link = document.createElement('a')
+      link.href = downloadUrlRef.current
+      link.download = fileName
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      setSaveMessage('Download started. Check your Downloads or Files app.')
+    } catch (saveError) {
+      if (saveError.name !== 'AbortError') {
+        setError('Could not save the video. Try again or use the browser share/download option.')
+      }
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const updateZoom = (event) => {
+    const nextZoom = Number(event.target.value)
+    zoomRef.current = nextZoom
+    setZoom(nextZoom)
   }
 
   const stopRecording = () => {
@@ -436,7 +536,7 @@ function PerformanceRecorder({ song, onClose }) {
           <section className="camera-panel">
             <div className={`camera-preview ${cameraReady ? 'ready' : ''}`}>
               {cameraReady ? (
-                <video ref={videoRef} autoPlay muted playsInline />
+                <video ref={videoRef} autoPlay muted playsInline style={{ transform: `scale(${zoom})` }} />
               ) : (
                 <div className="camera-placeholder">
                   <Camera size={30} />
@@ -445,6 +545,13 @@ function PerformanceRecorder({ song, onClose }) {
               )}
               {isRecording && <span className="recording-indicator"><i /> REC {formatRecordingTime(recordingTime)}</span>}
             </div>
+            {cameraReady && (
+              <label className="camera-zoom">
+                <span>ZOOM</span>
+                <input type="range" min="1" max="3" step="0.1" value={zoom} disabled={isRecording} onChange={updateZoom} aria-label="Camera zoom" />
+                <output>{zoom.toFixed(1)}×</output>
+              </label>
+            )}
             <div className="record-controls">
               {cameraReady && videoDevices.length > 1 && (
                 <button className="camera-switch-button" type="button" disabled={isRecording} onClick={cycleCamera}>
@@ -459,13 +566,14 @@ function PerformanceRecorder({ song, onClose }) {
                 <button className="record-button" type="button" onClick={startRecording}><span className="record-dot" />{downloadUrl ? 'RECORD AGAIN' : 'START RECORDING'}</button>
               )}
               {downloadUrl && (
-                <a className="download-recording" href={downloadUrl} download={`mcr-${song.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.${recordingType}`}>
-                  <Download size={15} />SAVE VIDEO
-                </a>
+                <button className="download-recording" type="button" onClick={saveRecording} disabled={isSaving}>
+                  <Download size={15} />{isSaving ? 'SAVING…' : 'SAVE VIDEO'}
+                </button>
               )}
             </div>
+            {saveMessage && <p className="save-message" role="status">{saveMessage}</p>}
             {error && <p className="camera-error" role="alert">{error}</p>}
-            <p className="recording-note">Works offline after first load. Camera and mic are recorded on this device; SAVE VIDEO downloads the local clip. Lyrics stay on-screen and are not burned into the video.</p>
+            <p className="recording-note">Works offline after first load. Camera, zoom, and mic stay on this device. SAVE VIDEO exports the clip; lyrics remain your on-screen prompt.</p>
           </section>
         </div>
       </section>

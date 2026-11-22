@@ -246,6 +246,7 @@ function PerformanceRecorder({ song, onClose }) {
   const recordingCanvasStreamRef = useRef(null)
   const animationFrameRef = useRef(null)
   const zoomRef = useRef(1)
+  const hardwareZoomRef = useRef(false)
   const [cameraReady, setCameraReady] = useState(false)
   const [videoDevices, setVideoDevices] = useState([])
   const [selectedCameraId, setSelectedCameraId] = useState('')
@@ -257,6 +258,8 @@ function PerformanceRecorder({ song, onClose }) {
   const [recordingType, setRecordingType] = useState('')
   const [recordingBlob, setRecordingBlob] = useState(null)
   const [zoom, setZoom] = useState(1)
+  const [zoomCapabilities, setZoomCapabilities] = useState({ min: 1, max: 3, step: 0.1, hardware: false })
+  const [canShareVideo, setCanShareVideo] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
   const [error, setError] = useState('')
@@ -314,9 +317,32 @@ function PerformanceRecorder({ song, onClose }) {
         video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: 'user' } },
         audio: true,
       })
+      const videoTrack = stream.getVideoTracks()[0]
+      let nextZoom = 1
+      let zoomRange = { min: 1, max: 3, step: 0.1, hardware: false }
+      try {
+        const zoomCapability = videoTrack.getCapabilities?.().zoom
+        if (zoomCapability && Number.isFinite(zoomCapability.min) && Number.isFinite(zoomCapability.max)) {
+          zoomRange = {
+            min: zoomCapability.min,
+            max: zoomCapability.max,
+            step: zoomCapability.step || 0.1,
+            hardware: true,
+          }
+          nextZoom = Math.min(zoomRange.max, Math.max(zoomRange.min, videoTrack.getSettings().zoom || zoomRange.min))
+          await videoTrack.applyConstraints({ advanced: [{ zoom: nextZoom }] })
+        }
+      } catch {
+        zoomRange = { min: 1, max: 3, step: 0.1, hardware: false }
+        nextZoom = 1
+      }
+      hardwareZoomRef.current = zoomRange.hardware
+      zoomRef.current = nextZoom
+      setZoomCapabilities(zoomRange)
+      setZoom(nextZoom)
       streamRef.current = stream
       setCameraReady(true)
-      setSelectedCameraId(stream.getVideoTracks()[0]?.getSettings().deviceId || deviceId)
+      setSelectedCameraId(videoTrack?.getSettings().deviceId || deviceId)
       try {
         const devices = await navigator.mediaDevices.enumerateDevices()
         setVideoDevices(devices.filter((device) => device.kind === 'videoinput'))
@@ -341,6 +367,7 @@ function PerformanceRecorder({ song, onClose }) {
     streamRef.current?.getTracks().forEach((track) => track.stop())
     streamRef.current = null
     setCameraReady(false)
+    hardwareZoomRef.current = false
     await startCamera(deviceId)
   }
 
@@ -361,6 +388,7 @@ function PerformanceRecorder({ song, onClose }) {
     downloadUrlRef.current = ''
     setDownloadUrl('')
     setRecordingBlob(null)
+    setCanShareVideo(false)
 
     const video = videoRef.current
     if (!video || !HTMLCanvasElement.prototype.captureStream) {
@@ -383,7 +411,8 @@ function PerformanceRecorder({ song, onClose }) {
         context.clearRect(0, 0, canvas.width, canvas.height)
         context.save()
         context.translate(canvas.width / 2, canvas.height / 2)
-        context.scale(zoomRef.current, zoomRef.current)
+        const frameZoom = hardwareZoomRef.current ? 1 : zoomRef.current
+        context.scale(frameZoom, frameZoom)
         context.drawImage(video, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height)
         context.restore()
       }
@@ -421,6 +450,12 @@ function PerformanceRecorder({ song, onClose }) {
         downloadUrlRef.current = url
         setDownloadUrl(url)
         setRecordingBlob(clip)
+        try {
+          const file = new File([clip], `mcr-${song.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.${type.includes('mp4') ? 'mp4' : 'webm'}`, { type })
+          setCanShareVideo(Boolean(navigator.canShare?.({ files: [file] }) && navigator.share))
+        } catch {
+          setCanShareVideo(false)
+        }
         setRecordingType(type.includes('mp4') ? 'mp4' : 'webm')
         setIsRecording(false)
       }
@@ -435,41 +470,34 @@ function PerformanceRecorder({ song, onClose }) {
     }
   }
 
-  const saveRecording = async () => {
+  const shareRecording = async () => {
     if (!recordingBlob || !downloadUrlRef.current || isSaving) return
     const fileName = `mcr-${song.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.${recordingType}`
     setIsSaving(true)
     setSaveMessage('')
     try {
       const file = new File([recordingBlob], fileName, { type: recordingBlob.type })
-      const userAgent = navigator.userAgent
-      const isIos = /iphone|ipad|ipod/i.test(userAgent)
-        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-      const isAndroid = /android/i.test(userAgent)
-      if ((isIos || isAndroid) && navigator.canShare?.({ files: [file] }) && navigator.share) {
-        await navigator.share({ files: [file], title: song.title })
-        setSaveMessage('Choose Save Video, Save to Files, or another storage app in the share menu.')
-        return
-      }
-      const link = document.createElement('a')
-      link.href = downloadUrlRef.current
-      link.download = fileName
-      link.style.display = 'none'
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      setSaveMessage('Download started. Check your Downloads or Files app.')
+      await navigator.share({ files: [file], title: song.title })
+      setSaveMessage('Choose Save Video, Save to Files, or another storage app in the share menu.')
     } catch (saveError) {
-      if (saveError.name !== 'AbortError') {
-        setError('Could not save the video. Try again or use the browser share/download option.')
-      }
+      setSaveMessage(saveError.name === 'AbortError' ? 'Sharing canceled. Tap DOWNLOAD VIDEO to save it directly.' : 'Could not open sharing. Tap DOWNLOAD VIDEO to save it directly.')
     } finally {
       setIsSaving(false)
     }
   }
 
-  const updateZoom = (event) => {
+  const updateZoom = async (event) => {
     const nextZoom = Number(event.target.value)
+    const videoTrack = streamRef.current?.getVideoTracks()[0]
+    if (zoomCapabilities.hardware && videoTrack) {
+      try {
+        await videoTrack.applyConstraints({ advanced: [{ zoom: nextZoom }] })
+      } catch {
+        hardwareZoomRef.current = false
+        setZoomCapabilities({ min: 1, max: 3, step: 0.1, hardware: false })
+        setError('Device zoom became unavailable. Using digital zoom instead.')
+      }
+    }
     zoomRef.current = nextZoom
     setZoom(nextZoom)
   }
@@ -536,7 +564,13 @@ function PerformanceRecorder({ song, onClose }) {
           <section className="camera-panel">
             <div className={`camera-preview ${cameraReady ? 'ready' : ''}`}>
               {cameraReady ? (
-                <video ref={videoRef} autoPlay muted playsInline style={{ transform: `scale(${zoom})` }} />
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  muted
+                  playsInline
+                  style={{ transform: zoomCapabilities.hardware ? undefined : `scale(${zoom})` }}
+                />
               ) : (
                 <div className="camera-placeholder">
                   <Camera size={30} />
@@ -547,8 +581,17 @@ function PerformanceRecorder({ song, onClose }) {
             </div>
             {cameraReady && (
               <label className="camera-zoom">
-                <span>ZOOM</span>
-                <input type="range" min="1" max="3" step="0.1" value={zoom} disabled={isRecording} onChange={updateZoom} aria-label="Camera zoom" />
+                <span>{zoomCapabilities.hardware ? 'CAMERA ZOOM' : 'DIGITAL ZOOM'}</span>
+                <input
+                  type="range"
+                  min={zoomCapabilities.min}
+                  max={zoomCapabilities.max}
+                  step={zoomCapabilities.step}
+                  value={zoom}
+                  disabled={isRecording}
+                  onChange={updateZoom}
+                  aria-label={zoomCapabilities.hardware ? 'Device camera zoom' : 'Digital camera zoom'}
+                />
                 <output>{zoom.toFixed(1)}×</output>
               </label>
             )}
@@ -566,9 +609,21 @@ function PerformanceRecorder({ song, onClose }) {
                 <button className="record-button" type="button" onClick={startRecording}><span className="record-dot" />{downloadUrl ? 'RECORD AGAIN' : 'START RECORDING'}</button>
               )}
               {downloadUrl && (
-                <button className="download-recording" type="button" onClick={saveRecording} disabled={isSaving}>
-                  <Download size={15} />{isSaving ? 'SAVING…' : 'SAVE VIDEO'}
-                </button>
+                <>
+                  <a
+                    className="download-recording"
+                    href={downloadUrl}
+                    download={`mcr-${song.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.${recordingType}`}
+                    onClick={() => setSaveMessage('Download requested. Check your Downloads or Files app.')}
+                  >
+                    <Download size={15} />DOWNLOAD VIDEO
+                  </a>
+                  {canShareVideo && (
+                    <button className="share-recording" type="button" onClick={shareRecording} disabled={isSaving}>
+                      <Share2 size={15} />{isSaving ? 'OPENING…' : 'MORE SAVE OPTIONS'}
+                    </button>
+                  )}
+                </>
               )}
             </div>
             {saveMessage && <p className="save-message" role="status">{saveMessage}</p>}

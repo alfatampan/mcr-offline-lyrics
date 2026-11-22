@@ -65,11 +65,11 @@ The app can also show its iOS installation instructions when you tap **ADD TO HO
 1. Open a song's lyrics and tap **RECORD WITH LYRICS**.
 2. Tap **ENABLE CAMERA** and allow camera and microphone access.
 3. If your device has multiple cameras, tap **SWITCH CAMERA** to cycle between them.
-4. Adjust the **ZOOM** slider; the zoom is included in the recording.
+4. Adjust the **ZOOM** slider; it uses the camera's optical/device zoom range when supported, otherwise it uses digital zoom. The zoom is included in the recording.
 5. Read the compact three-line lyric window; adjust its speed or tap **AUTO-SCROLL** to advance the prompt.
 6. Rotate your phone sideways for landscape, or tap **ROTATE PHONE** to request landscape when your browser supports orientation lock.
 7. Tap **START RECORDING**; the camera preview and lyrics stay together on screen.
-8. Tap **STOP RECORDING**, then **SAVE VIDEO**. On phones, choose **Save Video** or **Save to Files** in the share sheet if it appears.
+8. Tap **STOP RECORDING**, then **DOWNLOAD VIDEO**. On iPhone/iPad, use **MORE SAVE OPTIONS** to open the share sheet and choose **Save Video** or **Save to Files**.
 
 The app and lyrics are cached after the first online visit, so performance mode can be used offline afterwards. The video is recorded in your browser and saved from a local in-memory file; it is not uploaded. The downloaded clip contains camera, zoom, and microphone footage—the lyrics are a teleprompter and are not burned into the video. To include on-screen lyrics, use your phone's built-in screen recorder while Performance mode is open, or add them in a video editor. Camera recording requires a supported browser and camera/microphone permission; use **ENABLE CAMERA** on the live HTTPS site.
 
